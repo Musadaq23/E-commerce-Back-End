@@ -1,28 +1,34 @@
 const router = require('express').Router();
-const { Category, Product } = require('../../models');
+const { Category, Product, Tag } = require('../../models');
 
 // GET all categories and include their associated products
 router.get('/', async (req, res) => {
+  // find all categories
+  // be sure to include its associated Products
   try {
-    const categories = await Category.findAll({
-      include: { model: Product }
-    });
-    res.status(200).json(categories);
+    const categoryData = await Category.findAll({
+      include: [{model: Product}]
+    })
+    if(categoryData.length === 0){
+      res.status(404).json({message: 'no catagories found'})
+    }
+    res.status(200).json(categoryData);  
   } catch (err) {
     res.status(500).json(err);
   }
+  
 });
 
 // GET a single category by ID and include its associated products
 router.get('/:id', async (req, res) => {
   try {
-    const category = await Category.findByPk(req.params.id, {
+    const categories = await Category.findByPk(req.params.id, {
       include: { model: Product }
     });
-    if (!category) {
+    if (!categories) {
       res.status(404).json({ message: 'No category found with that ID.' });
     } else {
-      res.status(200).json(category);
+      res.status(200).json(categories);
     }
   } catch (err) {
     res.status(500).json(err);
